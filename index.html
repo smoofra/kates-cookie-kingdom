@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Kate's Cookie Kingdom</title>
+        <style>
+            body {
+                overflow: hidden;
+            }
+            span.cookie {
+                position: absolute;
+                font-size: 4em;
+            }
+        </style>
+    </head>
+    <body>
+        <span class="cookie">🍪</span>
+
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script>
+            let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+            let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+
+            const data = Array.from(Array(30).keys()).map(i => {
+                return {
+                    x: Math.random() * vw,
+                    xdot: Math.random() * Math.min(vw,vh),
+                    y: Math.random() * vh,
+                    ydot: Math.random() * Math.min(vw,vh),
+                }
+            })
+            d3.selectAll("span.cookie").data(data).join(
+                enter => {
+                    enter.append("span").text("🍪").attr("class", "cookie")
+                },
+                update => null,
+                exit => null
+            )
+            const cookies = d3.selectAll("span.cookie")
+            cookies
+                .style("top", d => d.y)
+                .style("left", d => d.x)
+
+            let lastTimestamp = 0
+
+            const step = function(timestamp) {
+                vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+                vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+                window.requestAnimationFrame(step);
+                const elapsed_s = (timestamp - lastTimestamp) / 1000
+                lastTimestamp = timestamp
+                data.forEach(d => {
+                    d.x += d.xdot * elapsed_s;
+                    d.y += d.ydot * elapsed_s;
+                    if (d.x < 0 && d.xdot < 0) {
+                        d.xdot *= -1
+                    }
+                    if (d.x >vw && d.xdot > 0) {
+                        d.xdot *= -1
+                    }
+                    if (d.y < 0 && d.ydot < 0) {
+                        d.ydot *= -1
+                    }
+                    if (d.y >vh && d.ydot > 0) {
+                        d.ydot *= -1
+                    }
+                })
+                cookies
+                    .style("top", d => d.y)
+                    .style("left", d => d.x)
+            }
+            lastTimestamp = window.requestAnimationFrame(step)
+        </script>
+    </body>
+</html>
